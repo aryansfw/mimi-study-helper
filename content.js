@@ -39,6 +39,28 @@ async function saveFlashcard(selectionText, explanation) {
   await browser.storage.local.set({ flashcards });
 }
 
+function makeGhostButton(label, fg, onClick) {
+  const btn = document.createElement("button");
+  btn.textContent = label;
+  btn.type = "button";
+  btn.style.cssText = `
+    cursor: pointer; padding: 4px 10px; font: inherit;
+    background: transparent; color: ${fg};
+    border: 1px solid #3a3a3a; border-radius: 6px;
+    transition: border-color 120ms ease-out, transform 120ms ease-out;
+  `;
+  btn.onmouseenter = () => {
+    btn.style.borderColor = "#9d7cf2";
+    btn.style.transform = "scale(1.02)";
+  };
+  btn.onmouseleave = () => {
+    btn.style.borderColor = "#3a3a3a";
+    btn.style.transform = "scale(1)";
+  };
+  btn.onclick = onClick;
+  return btn;
+}
+
 function showOverlay(text, isError, selectionText) {
   removeOverlay();
 
@@ -101,26 +123,20 @@ function showOverlay(text, isError, selectionText) {
       saveBtn.style.cursor = "default";
     };
     toolbar.appendChild(saveBtn);
+
+    const copyBtn = makeGhostButton("Copy", fg, async () => {
+      try {
+        await navigator.clipboard.writeText(text);
+        copyBtn.textContent = "Copied";
+      } catch (err) {
+        copyBtn.textContent = "Copy failed";
+      }
+      setTimeout(() => { copyBtn.textContent = "Copy"; }, 1500);
+    });
+    toolbar.appendChild(copyBtn);
   }
 
-  const closeBtn = document.createElement("button");
-  closeBtn.textContent = "Close";
-  closeBtn.type = "button";
-  closeBtn.style.cssText = `
-    cursor: pointer; padding: 4px 10px; font: inherit;
-    background: transparent; color: ${fg};
-    border: 1px solid #3a3a3a; border-radius: 6px;
-    transition: border-color 120ms ease-out, transform 120ms ease-out;
-  `;
-  closeBtn.onmouseenter = () => {
-    closeBtn.style.borderColor = "#9d7cf2";
-    closeBtn.style.transform = "scale(1.02)";
-  };
-  closeBtn.onmouseleave = () => {
-    closeBtn.style.borderColor = "#3a3a3a";
-    closeBtn.style.transform = "scale(1)";
-  };
-  closeBtn.onclick = removeOverlay;
+  const closeBtn = makeGhostButton("Close", fg, removeOverlay);
   toolbar.appendChild(closeBtn);
 
   header.appendChild(toolbar);
