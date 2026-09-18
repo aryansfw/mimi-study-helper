@@ -4,7 +4,7 @@ const SYSTEM_PROMPT = `You are Mimi, a teaching assistant explaining a selected 
 3. How it works - the underlying mechanism, explained causally, not just labeled parts.
 4. An analogy to something familiar outside this domain.
 5. A concrete example grounded in the surrounding context you're given, not a generic textbook example.
-Keep it tight, a few sentences per part. Do not repeat the question or pad with fluff. Do not use em dashes; use a comma, period, or parentheses instead.`;
+Keep it tight, a few sentences per part. Do not repeat the question or pad with fluff. Do not use em dashes; use a comma, period, or parentheses instead. Separate each of the 5 parts with a blank line so they read as distinct paragraphs, not one block.`;
 
 browser.runtime.onInstalled.addListener(() => {
   browser.contextMenus.create({
