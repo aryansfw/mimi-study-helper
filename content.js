@@ -172,7 +172,7 @@ function showOverlay(text, isError, topic) {
   `;
 
   const titleRow = document.createElement("div");
-  titleRow.style.cssText = "display: flex; align-items: center; gap: 8px; cursor: grab;";
+  titleRow.style.cssText = "display: flex; align-items: center; gap: 8px; cursor: grab; user-select: none;";
 
   const menuBtn = makeIconButton(ICONS.panelLeft, "Menu", fg);
   titleRow.appendChild(menuBtn);
@@ -188,6 +188,7 @@ function showOverlay(text, isError, topic) {
 
   titleRow.addEventListener("mousedown", (e) => {
     if (e.target.closest("button")) return;
+    e.preventDefault();
 
     const startX = e.clientX;
     const startY = e.clientY;
