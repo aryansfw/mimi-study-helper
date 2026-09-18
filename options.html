@@ -4,14 +4,92 @@
 <meta charset="utf-8">
 <title>Mimi settings</title>
 <style>
-  body { font: 14px system-ui, sans-serif; padding: 16px; width: 320px; }
-  label { display: block; margin-bottom: 6px; }
-  input { width: 100%; padding: 6px; box-sizing: border-box; margin-bottom: 10px; }
-  button { padding: 6px 14px; cursor: pointer; }
-  #status { margin-top: 8px; color: #2a7; }
+  :root {
+    --bg: #1e1e1e;
+    --text: #f0f0f0;
+    --muted: #a8a8a8;
+    --border: #3a3a3a;
+    --accent: #9d7cf2;
+    --accent-hover: #ab8ff5;
+  }
+
+  body {
+    font: 14px/1.5 system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px;
+    width: 320px;
+  }
+
+  h1 {
+    font-size: 18px;
+    margin: 0 0 4px 0;
+  }
+
+  p.subtitle {
+    color: var(--muted);
+    margin: 0 0 16px 0;
+  }
+
+  p.subtitle a {
+    color: var(--accent);
+  }
+
+  label {
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    margin-bottom: 12px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font: inherit;
+  }
+
+  input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  button {
+    padding: 8px 16px;
+    cursor: pointer;
+    background: var(--accent);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font: inherit;
+    transition: background-color 120ms ease-out, transform 120ms ease-out;
+  }
+
+  button:hover {
+    background: var(--accent-hover);
+    transform: scale(1.02);
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  #status {
+    margin-top: 8px;
+    color: var(--accent);
+    min-height: 1em;
+  }
 </style>
 </head>
 <body>
+  <h1>Mimi</h1>
+  <p class="subtitle">
+    Get a free key at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a>.
+  </p>
   <label for="groq-key">Groq API key</label>
   <input id="groq-key" type="password" placeholder="gsk_...">
   <button id="save">Save</button>

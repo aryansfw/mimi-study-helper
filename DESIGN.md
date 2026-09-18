@@ -20,6 +20,7 @@ Companion warmth, not pure utilitarian. "Mimi" gets a bit of character (rounder 
 | Accent | `#9d7cf2` | Single flat violet, no gradient. Ties to the companion identity, distinct from generic dev-tool teal/blue |
 | Error background | `#4a1616` | Dark red, same value already used in the overlay |
 | Error text | `#f0a8a8` | Readable against the error background |
+| Muted text | `#a8a8a8` | Secondary hierarchy for hints/subtitles. Neutral grey, doesn't count against the accent cap |
 
 3 core neutrals + 1 accent + 1 semantic error color. Stays within a 2-3 core + 1 accent palette.
 
