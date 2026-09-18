@@ -288,7 +288,11 @@ function showOverlay(text, isError, topic) {
   box.appendChild(header);
 
   const body = document.createElement("div");
-  body.style.cssText = "padding: 12px 14px; overflow-y: auto;";
+  body.style.cssText = `
+    padding: 12px 14px; overflow-y: auto;
+    mask-image: linear-gradient(to bottom, transparent, black 12px, black calc(100% - 12px), transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 12px, black calc(100% - 12px), transparent);
+  `;
 
   const p = document.createElement("p");
   p.style.cssText = `margin: 0; white-space: pre-wrap; font-size: ${fontSize}px;`;
