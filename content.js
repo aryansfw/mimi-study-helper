@@ -49,29 +49,46 @@ const ICONS = {
   check: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
 };
 
-function makeIconButton(icon, label, fg, { primary = false } = {}) {
+const MIN_FONT_SIZE = 10;
+const MAX_FONT_SIZE = 32;
+
+// Every button shares one style (no primary/secondary split): transparent
+// background, border token, fg-colored icon. Solid-accent primary buttons
+// previously put white text/icons on #9d7cf2, which only measures 3.18:1
+// contrast, failing WCAG AA's 4.5:1 for text. Scoped to #mimi-overlay so it
+// doesn't leak into the host page.
+const OVERLAY_STYLE = `
+  #mimi-overlay button, #mimi-overlay input[type="number"] {
+    font: inherit;
+    border: 1px solid #3a3a3a;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    transition: border-color 120ms ease-out, transform 120ms ease-out, background-color 120ms ease-out;
+  }
+  #mimi-overlay button {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; padding: 0;
+  }
+  #mimi-overlay input[type="number"] {
+    width: 40px; text-align: center; padding: 4px 2px; cursor: text;
+  }
+  #mimi-overlay button:hover:not(:disabled) {
+    border-color: #9d7cf2; background: rgba(157, 124, 242, 0.15); transform: scale(1.08);
+  }
+  #mimi-overlay button:disabled { opacity: 0.6; cursor: default; }
+  #mimi-overlay button:focus-visible, #mimi-overlay input:focus-visible {
+    outline: 2px solid #9d7cf2; outline-offset: 2px;
+  }
+`;
+
+function makeIconButton(icon, label, fg) {
   const btn = document.createElement("button");
   btn.innerHTML = icon;
   btn.type = "button";
   btn.title = label;
   btn.setAttribute("aria-label", label);
-  btn.style.cssText = `
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; padding: 0; cursor: pointer;
-    border-radius: 6px; border: none;
-    background: ${primary ? "#9d7cf2" : "transparent"};
-    color: ${primary ? "#ffffff" : fg};
-    transition: background-color 120ms ease-out, transform 120ms ease-out;
-  `;
-  btn.onmouseenter = () => {
-    if (btn.disabled) return;
-    btn.style.background = primary ? "#ab8ff5" : "rgba(157, 124, 242, 0.2)";
-    btn.style.transform = "scale(1.08)";
-  };
-  btn.onmouseleave = () => {
-    btn.style.background = primary ? "#9d7cf2" : "transparent";
-    btn.style.transform = "scale(1)";
-  };
+  btn.style.color = fg;
   return btn;
 }
 
@@ -96,6 +113,10 @@ function showOverlay(text, isError, selectionText) {
     transition: opacity 180ms ease-out, transform 180ms ease-out;
   `;
 
+  const styleTag = document.createElement("style");
+  styleTag.textContent = OVERLAY_STYLE;
+  box.appendChild(styleTag);
+
   const header = document.createElement("div");
   header.style.cssText = `
     padding: 10px 14px; border-bottom: 1px solid #3a3a3a; flex-shrink: 0;
@@ -116,18 +137,16 @@ function showOverlay(text, isError, selectionText) {
   header.appendChild(titleRow);
 
   const toolbar = document.createElement("div");
-  toolbar.style.cssText = "display: flex; gap: 4px; margin-top: 8px;";
+  toolbar.style.cssText = "display: flex; align-items: center; gap: 4px; margin-top: 8px;";
 
   if (!isError) {
-    const saveBtn = makeIconButton(ICONS.bookmark, "Save as flashcard", fg, { primary: true });
+    const saveBtn = makeIconButton(ICONS.bookmark, "Save as flashcard", fg);
     saveBtn.onclick = async () => {
       await saveFlashcard(selectionText, text);
       saveBtn.innerHTML = ICONS.check;
       saveBtn.title = "Saved";
       saveBtn.setAttribute("aria-label", "Saved");
       saveBtn.disabled = true;
-      saveBtn.style.opacity = "0.6";
-      saveBtn.style.cursor = "default";
     };
     toolbar.appendChild(saveBtn);
 
@@ -148,21 +167,39 @@ function showOverlay(text, isError, selectionText) {
     toolbar.appendChild(copyBtn);
   }
 
-  const zoomOutBtn = makeIconButton(ICONS.zoomOut, "Zoom out", fg);
-  const zoomInBtn = makeIconButton(ICONS.zoomIn, "Zoom in", fg);
-
   function applyZoom() {
     p.style.fontSize = fontSize + "px";
+    fontSizeInput.value = fontSize;
   }
+
+  const zoomOutBtn = makeIconButton(ICONS.zoomOut, "Zoom out", fg);
   zoomOutBtn.onclick = () => {
-    fontSize = Math.max(12, fontSize - 2);
-    applyZoom();
-  };
-  zoomInBtn.onclick = () => {
-    fontSize = Math.min(22, fontSize + 2);
+    fontSize = Math.max(MIN_FONT_SIZE, fontSize - 2);
     applyZoom();
   };
   toolbar.appendChild(zoomOutBtn);
+
+  const fontSizeInput = document.createElement("input");
+  fontSizeInput.type = "number";
+  fontSizeInput.min = String(MIN_FONT_SIZE);
+  fontSizeInput.max = String(MAX_FONT_SIZE);
+  fontSizeInput.value = fontSize;
+  fontSizeInput.title = "Explanation text size (px)";
+  fontSizeInput.style.color = fg;
+  fontSizeInput.addEventListener("change", () => {
+    const val = parseInt(fontSizeInput.value, 10);
+    fontSize = Number.isFinite(val)
+      ? Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, val))
+      : fontSize;
+    applyZoom();
+  });
+  toolbar.appendChild(fontSizeInput);
+
+  const zoomInBtn = makeIconButton(ICONS.zoomIn, "Zoom in", fg);
+  zoomInBtn.onclick = () => {
+    fontSize = Math.min(MAX_FONT_SIZE, fontSize + 2);
+    applyZoom();
+  };
   toolbar.appendChild(zoomInBtn);
 
   header.appendChild(toolbar);
@@ -172,7 +209,7 @@ function showOverlay(text, isError, selectionText) {
   body.style.cssText = "padding: 12px 14px; overflow-y: auto;";
 
   const p = document.createElement("p");
-  p.style.cssText = "margin: 0; white-space: pre-wrap;";
+  p.style.cssText = `margin: 0; white-space: pre-wrap; font-size: ${fontSize}px;`;
   p.textContent = text;
   body.appendChild(p);
 

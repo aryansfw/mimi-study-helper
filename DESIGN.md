@@ -37,13 +37,14 @@ Radius: 8px on panels (overlay, options page container), 6px on buttons and inpu
 ## Motion (dial 2)
 
 - Overlay entrance: one transition, fade + slight slide (~180ms ease-out). Single technique, not stacked.
-- Buttons: subtle hover state, slight background lighten + `scale(1.02)` (~120ms). One purpose (affordance feedback), one technique.
+- Buttons: subtle hover state, border-color shifts to accent + `scale(1.02)` (~120ms). One purpose (affordance feedback), one technique.
 - No motion beyond these two cases unless a new one earns its own written reason here.
 
 ## Component patterns
 
-- **Floating overlay panel**: fixed position, background/text/border tokens above, 8px radius, box-shadow for elevation (single elevation level, not stacked with glow). Structured as a non-scrolling header (small "Mimi" label + close button) plus a scrollable body region, overall panel capped at `min(70vh, 480px)` so it never exceeds the viewport regardless of content length. Any future panel content (e.g. a flashcard action footer) slots in as a third, non-scrolling region below the body — not built until that feature exists.
-- **Buttons**: primary action (Explain trigger, Save) = solid accent background, white text. Secondary action (Close, Cancel) = ghost/outline style, border token, transparent background.
-- **Text input**: background token, border token, accent-colored focus outline (visible, not `outline: none`).
+- **Floating overlay panel**: fixed position, background/text/border tokens above, 8px radius, box-shadow for elevation (single elevation level, not stacked with glow). Structured as a title row (label + close, non-scrolling), a toolbar row below it (action icons, non-scrolling), and a scrollable body region, overall panel capped at `min(70vh, 480px)` so it never exceeds the viewport regardless of content length.
+- **Buttons**: one style for every button, no primary/secondary split — transparent background, border token, fg-colored text/icon, hover border-color accent + `scale(1.02)`. Replaces the earlier primary (solid accent background, white text/icon) vs. ghost split: solid-accent white-on-`#9d7cf2` only measured 3.18:1 contrast, failing WCAG AA's 4.5:1 for text (icons alone would've cleared the 3:1 non-text threshold, but the split wasn't worth keeping for one button). Uniform ghost style clears 14.63:1 everywhere and simplifies the system.
+- **Icon buttons**: 28x28px, inline SVG copied verbatim from Lucide (lucide.dev, ISC license) per icon needed, no library/bundler dependency. Every icon button gets a `title` and `aria-label` matching its action (icons alone aren't accessible names). A completed/success action (Save, Copy) swaps its icon to a checkmark rather than relying on text, since there's no label to change.
+- **Text input**: background token, border token, accent-colored focus outline (visible, not `outline: none`). All buttons and inputs also get a `title` tooltip even when they have visible text, for consistency and extra context on hover.
 
 Every new feature (flashcard buttons, quiz page) styles against these tokens and patterns rather than re-deriving new ones. Any deviation gets its own one-line reason added here first.

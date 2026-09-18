@@ -10,7 +10,6 @@
     --muted: #a8a8a8;
     --border: #3a3a3a;
     --accent: #9d7cf2;
-    --accent-hover: #ab8ff5;
   }
 
   body {
@@ -91,27 +90,13 @@
     cursor: pointer;
     border-radius: 6px;
     font: inherit;
-    transition: background-color 120ms ease-out, border-color 120ms ease-out, transform 120ms ease-out;
-  }
-
-  button.primary {
-    background: var(--accent);
-    color: #ffffff;
-    border: none;
-  }
-
-  button.primary:hover {
-    background: var(--accent-hover);
-    transform: scale(1.02);
-  }
-
-  button.ghost {
     background: transparent;
     color: var(--text);
     border: 1px solid var(--border);
+    transition: border-color 120ms ease-out, transform 120ms ease-out;
   }
 
-  button.ghost:hover {
+  button:hover {
     border-color: var(--accent);
     transform: scale(1.02);
   }
@@ -141,19 +126,19 @@
       <div id="content">
         <p id="front"></p>
         <div id="answer" hidden></div>
-        <button id="explanation-toggle" type="button" hidden>See full explanation</button>
+        <button id="explanation-toggle" type="button" title="Show or hide the full explanation" hidden>See full explanation</button>
         <div id="explanation" hidden></div>
       </div>
       <div class="row">
-        <button id="show-answer" class="primary" type="button">Show answer</button>
-        <button id="got-it" class="primary" type="button" hidden>Got it</button>
-        <button id="review-again" class="ghost" type="button" hidden>Review again</button>
+        <button id="show-answer" type="button" title="Reveal the answer">Show answer</button>
+        <button id="got-it" type="button" title="Mark this card as known" hidden>Got it</button>
+        <button id="review-again" type="button" title="Review this card again later" hidden>Review again</button>
       </div>
     </div>
 
     <div id="done-state" hidden>
       <p id="done-message"></p>
-      <button id="restart" class="primary" type="button">Restart</button>
+      <button id="restart" type="button" title="Start a new shuffled session">Restart</button>
     </div>
   </div>
   <script src="quiz.js"></script>

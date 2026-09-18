@@ -10,7 +10,6 @@
     --muted: #a8a8a8;
     --border: #3a3a3a;
     --accent: #9d7cf2;
-    --accent-hover: #ab8ff5;
   }
 
   body {
@@ -76,27 +75,13 @@
     cursor: pointer;
     border-radius: 6px;
     font: inherit;
-    transition: background-color 120ms ease-out, border-color 120ms ease-out, transform 120ms ease-out;
-  }
-
-  button.primary {
-    background: var(--accent);
-    color: #ffffff;
-    border: none;
-  }
-
-  button.primary:hover {
-    background: var(--accent-hover);
-    transform: scale(1.02);
-  }
-
-  button.ghost {
     background: transparent;
     color: var(--text);
     border: 1px solid var(--border);
+    transition: border-color 120ms ease-out, transform 120ms ease-out;
   }
 
-  button.ghost:hover {
+  button:hover {
     border-color: var(--accent);
     transform: scale(1.02);
   }
@@ -121,10 +106,10 @@
     </p>
     <label for="groq-key">Groq API key</label>
     <div class="field-row">
-      <input id="groq-key" type="password" placeholder="gsk_...">
-      <button id="toggle" class="ghost" type="button">Show</button>
-      <button id="edit" class="ghost" type="button" hidden>Edit</button>
-      <button id="save" class="primary" type="button" hidden>Save</button>
+      <input id="groq-key" type="password" placeholder="gsk_..." title="Groq API key">
+      <button id="toggle" type="button" title="Show or hide the API key">Show</button>
+      <button id="edit" type="button" title="Edit the API key" hidden>Edit</button>
+      <button id="save" type="button" title="Save the API key" hidden>Save</button>
     </div>
     <div id="status"></div>
   </div>
