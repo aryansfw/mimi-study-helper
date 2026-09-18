@@ -22,22 +22,16 @@ browser.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return;
   }
   if (msg.type === "explanation-result") {
-    showOverlay(msg.explanation, false, msg.selectionText);
+    showOverlay(msg.explanation, false, msg.topic);
   } else if (msg.type === "explanation-error") {
     showOverlay(msg.error, true);
   }
 });
 
-function extractAnswer(text) {
-  const idx = text.indexOf("\n\n");
-  return idx === -1 ? text : text.slice(0, idx);
-}
-
-async function saveFlashcard(selectionText, explanation) {
-  const answer = extractAnswer(explanation);
-  const { flashcards = [] } = await browser.storage.local.get("flashcards");
-  flashcards.push({ front: selectionText, answer, explanation, created: Date.now() });
-  await browser.storage.local.set({ flashcards });
+async function saveNote(topic, explanation) {
+  const { notes = [] } = await browser.storage.local.get("notes");
+  notes.push({ topic, explanation, created: Date.now() });
+  await browser.storage.local.set({ notes });
 }
 
 // Icon markup from Lucide (lucide.dev, ISC license), copied verbatim per icon, no library dependency.
@@ -88,7 +82,7 @@ function makeIconButton(icon, label, fg) {
   return btn;
 }
 
-function showOverlay(text, isError, selectionText) {
+function showOverlay(text, isError, topic) {
   removeOverlay();
 
   const bg = isError ? "#4a1616" : "#1e1e1e";
@@ -168,9 +162,9 @@ function showOverlay(text, isError, selectionText) {
   toolbar.style.cssText = "display: flex; align-items: center; gap: 4px; margin-top: 8px;";
 
   if (!isError) {
-    const saveBtn = makeIconButton(ICONS.bookmark, "Save as flashcard", fg);
+    const saveBtn = makeIconButton(ICONS.bookmark, "Save as note", fg);
     saveBtn.onclick = async () => {
-      await saveFlashcard(selectionText, text);
+      await saveNote(topic, text);
       saveBtn.innerHTML = ICONS.check;
       saveBtn.title = "Saved";
       saveBtn.setAttribute("aria-label", "Saved");
