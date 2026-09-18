@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Mimi",
+  "version": "0.1.0",
+  "description": "Select text on any page, explain it with AI, save it, quiz yourself later.",
+  "permissions": ["contextMenus", "storage"],
+  "host_permissions": ["https://api.groq.com/*"],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  }
+}

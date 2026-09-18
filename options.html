@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Mimi settings</title>
+<style>
+  body { font: 14px system-ui, sans-serif; padding: 16px; width: 320px; }
+  label { display: block; margin-bottom: 6px; }
+  input { width: 100%; padding: 6px; box-sizing: border-box; margin-bottom: 10px; }
+  button { padding: 6px 14px; cursor: pointer; }
+  #status { margin-top: 8px; color: #2a7; }
+</style>
+</head>
+<body>
+  <label for="groq-key">Groq API key</label>
+  <input id="groq-key" type="password" placeholder="gsk_...">
+  <button id="save">Save</button>
+  <div id="status"></div>
+  <script src="options.js"></script>
+</body>
+</html>

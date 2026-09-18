@@ -1,0 +1,48 @@
+# Mimi — design direction
+
+Design Read: browser-extension companion UI (overlay + settings + future quiz) for a solo cybersecurity learner, dark utility-with-warmth visual language, dial ENERGY 2 / RHYTHM 2 / MOTION 2.
+
+## Theme
+
+Dark. Reason: matches the overlay already built, low-strain for long TryHackMe sessions, fits a dev/security-tool context.
+
+## Personality
+
+Companion warmth, not pure utilitarian. "Mimi" gets a bit of character (rounder corners, the accent color, slightly livelier motion), while staying visually quiet against whatever page it's overlaid on.
+
+## Palette
+
+| Token | Value | Reason |
+|---|---|---|
+| Background | `#1e1e1e` | Dark grey, deliberately not pure black — avoids the "purple-and-black" cliche |
+| Text | `#f0f0f0` | High contrast against background |
+| Border / secondary | `#3a3a3a` | Muted, for dividers and secondary UI, not decoration |
+| Accent | `#9d7cf2` | Single flat violet, no gradient. Ties to the companion identity, distinct from generic dev-tool teal/blue |
+| Error background | `#4a1616` | Dark red, same value already used in the overlay |
+| Error text | `#f0a8a8` | Readable against the error background |
+
+3 core neutrals + 1 accent + 1 semantic error color. Stays within a 2-3 core + 1 accent palette.
+
+## Typography
+
+`system-ui, sans-serif` stack. Base 14px, line-height 1.5. Reason: native, zero cost, matches the user's OS — no reason to import a webfont for a personal tool.
+
+## Spacing & radius
+
+Spacing scale: 4 / 8 / 12 / 16 / 24px.
+
+Radius: 8px on panels (overlay, options page container), 6px on buttons and inputs. Deliberate variation, not everything pill-shaped.
+
+## Motion (dial 2)
+
+- Overlay entrance: one transition, fade + slight slide (~180ms ease-out). Single technique, not stacked.
+- Buttons: subtle hover state, slight background lighten + `scale(1.02)` (~120ms). One purpose (affordance feedback), one technique.
+- No motion beyond these two cases unless a new one earns its own written reason here.
+
+## Component patterns
+
+- **Floating overlay panel**: fixed position, background/text/border tokens above, 8px radius, box-shadow for elevation (single elevation level, not stacked with glow).
+- **Buttons**: primary action (Explain trigger, Save) = solid accent background, white text. Secondary action (Close, Cancel) = ghost/outline style, border token, transparent background.
+- **Text input**: background token, border token, accent-colored focus outline (visible, not `outline: none`).
+
+Every new feature (flashcard buttons, quiz page) styles against these tokens and patterns rather than re-deriving new ones. Any deviation gets its own one-line reason added here first.
