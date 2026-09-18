@@ -42,7 +42,7 @@ Radius: 8px on panels (overlay, options page container), 6px on buttons and inpu
 
 ## Component patterns
 
-- **Floating overlay panel**: fixed position, background/text/border tokens above, 8px radius, box-shadow for elevation (single elevation level, not stacked with glow).
+- **Floating overlay panel**: fixed position, background/text/border tokens above, 8px radius, box-shadow for elevation (single elevation level, not stacked with glow). Structured as a non-scrolling header (small "Mimi" label + close button) plus a scrollable body region, overall panel capped at `min(70vh, 480px)` so it never exceeds the viewport regardless of content length. Any future panel content (e.g. a flashcard action footer) slots in as a third, non-scrolling region below the body — not built until that feature exists.
 - **Buttons**: primary action (Explain trigger, Save) = solid accent background, white text. Secondary action (Close, Cancel) = ghost/outline style, border token, transparent background.
 - **Text input**: background token, border token, accent-colored focus outline (visible, not `outline: none`).
 

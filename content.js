@@ -29,28 +29,73 @@ browser.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 function showOverlay(text, isError) {
   removeOverlay();
+
+  const bg = isError ? "#4a1616" : "#1e1e1e";
+  const fg = isError ? "#f0a8a8" : "#f0f0f0";
+
   const box = document.createElement("div");
   box.id = "mimi-overlay";
   box.style.cssText = `
-    position: fixed; top: 20px; right: 20px; max-width: 360px;
-    background: ${isError ? "#4a1616" : "#1e1e1e"}; color: #f0f0f0;
-    padding: 14px 16px; border-radius: 8px;
+    position: fixed; top: 20px; right: 20px; width: 360px;
+    max-height: min(70vh, 480px);
+    display: flex; flex-direction: column;
+    background: ${bg}; color: ${fg};
+    border-radius: 8px;
     font: 14px/1.5 system-ui, sans-serif;
     z-index: 2147483647; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    opacity: 0; transform: translateY(-8px);
+    transition: opacity 180ms ease-out, transform 180ms ease-out;
   `;
 
-  const p = document.createElement("p");
-  p.style.cssText = "margin: 0 0 10px 0; white-space: pre-wrap;";
-  p.textContent = text;
-  box.appendChild(p);
+  const header = document.createElement("div");
+  header.style.cssText = `
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-bottom: 1px solid #3a3a3a;
+    flex-shrink: 0;
+  `;
+
+  const label = document.createElement("span");
+  label.textContent = "Mimi";
+  label.style.cssText = "font-weight: 600;";
+  header.appendChild(label);
 
   const closeBtn = document.createElement("button");
   closeBtn.textContent = "Close";
-  closeBtn.style.cssText = "cursor: pointer; padding: 4px 10px;";
+  closeBtn.type = "button";
+  closeBtn.style.cssText = `
+    cursor: pointer; padding: 4px 10px; font: inherit;
+    background: transparent; color: ${fg};
+    border: 1px solid #3a3a3a; border-radius: 6px;
+    transition: border-color 120ms ease-out, transform 120ms ease-out;
+  `;
+  closeBtn.onmouseenter = () => {
+    closeBtn.style.borderColor = "#9d7cf2";
+    closeBtn.style.transform = "scale(1.02)";
+  };
+  closeBtn.onmouseleave = () => {
+    closeBtn.style.borderColor = "#3a3a3a";
+    closeBtn.style.transform = "scale(1)";
+  };
   closeBtn.onclick = removeOverlay;
-  box.appendChild(closeBtn);
+  header.appendChild(closeBtn);
 
+  box.appendChild(header);
+
+  const body = document.createElement("div");
+  body.style.cssText = "padding: 12px 14px; overflow-y: auto;";
+
+  const p = document.createElement("p");
+  p.style.cssText = "margin: 0; white-space: pre-wrap;";
+  p.textContent = text;
+  body.appendChild(p);
+
+  box.appendChild(body);
   document.body.appendChild(box);
+
+  requestAnimationFrame(() => {
+    box.style.opacity = "1";
+    box.style.transform = "translateY(0)";
+  });
 }
 
 function removeOverlay() {
