@@ -23,6 +23,8 @@ browser.action.onClicked.addListener(() => {
 browser.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId !== "mimi-explain" || !info.selectionText) return;
 
+  browser.tabs.sendMessage(tab.id, { type: "explanation-loading" });
+
   const { groqApiKey } = await browser.storage.local.get("groqApiKey");
   if (!groqApiKey) {
     browser.tabs.sendMessage(tab.id, {

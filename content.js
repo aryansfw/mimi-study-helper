@@ -21,7 +21,9 @@ browser.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     sendResponse(lastContext || { selectionText: "", nearbyText: "" });
     return;
   }
-  if (msg.type === "explanation-result") {
+  if (msg.type === "explanation-loading") {
+    showLoadingOverlay();
+  } else if (msg.type === "explanation-result") {
     showOverlay(msg.explanation, false, msg.topic);
   } else if (msg.type === "explanation-error") {
     showOverlay(msg.error, true);
@@ -99,13 +101,7 @@ function makeListButton(text, fg, bold) {
   return btn;
 }
 
-function showOverlay(text, isError, topic) {
-  removeOverlay();
-
-  const bg = isError ? "#4a1616" : "#1e1e1e";
-  const fg = isError ? "#f0a8a8" : "#f0f0f0";
-  let fontSize = 14;
-
+function createPanel(bg, fg) {
   const position = savedPosition || { left: window.innerWidth - 360 - 20, top: 20 };
 
   const box = document.createElement("div");
@@ -126,6 +122,50 @@ function showOverlay(text, isError, topic) {
   styleTag.textContent = OVERLAY_STYLE;
   box.appendChild(styleTag);
 
+  return box;
+}
+
+function showLoadingOverlay() {
+  removeOverlay();
+
+  const box = createPanel("#1e1e1e", "#f0f0f0");
+
+  const header = document.createElement("div");
+  header.style.cssText = "display: flex; align-items: center; justify-content: space-between; padding: 10px 14px;";
+
+  const label = document.createElement("span");
+  label.textContent = "Mimi";
+  label.style.cssText = "font-weight: 600; color: #9d7cf2;";
+  header.appendChild(label);
+
+  const closeBtn = makeIconButton(ICONS.x, "Close", "#f0f0f0");
+  closeBtn.onclick = removeOverlay;
+  header.appendChild(closeBtn);
+
+  box.appendChild(header);
+
+  const body = document.createElement("div");
+  body.style.cssText = "padding: 12px 14px; color: #a8a8a8;";
+  body.textContent = "Explaining...";
+  box.appendChild(body);
+
+  document.body.appendChild(box);
+
+  requestAnimationFrame(() => {
+    box.style.opacity = "1";
+    box.style.transform = "translateY(0)";
+  });
+}
+
+function showOverlay(text, isError, topic) {
+  removeOverlay();
+
+  const bg = isError ? "#4a1616" : "#1e1e1e";
+  const fg = isError ? "#f0a8a8" : "#f0f0f0";
+  let fontSize = 14;
+
+  const box = createPanel(bg, fg);
+
   const header = document.createElement("div");
   header.style.cssText = `
     padding: 10px 14px; border-bottom: 1px solid #3a3a3a; flex-shrink: 0;
@@ -139,7 +179,7 @@ function showOverlay(text, isError, topic) {
 
   const label = document.createElement("span");
   label.textContent = "Mimi";
-  label.style.cssText = "font-weight: 600; flex: 1;";
+  label.style.cssText = "font-weight: 600; flex: 1; color: #9d7cf2;";
   titleRow.appendChild(label);
 
   const closeBtn = makeIconButton(ICONS.x, "Close", fg);
