@@ -41,7 +41,9 @@ const ICONS = {
   zoomIn: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="11" x2="11" y1="8" y2="14"/><line x1="8" x2="14" y1="11" y2="11"/></svg>',
   zoomOut: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="8" x2="14" y1="11" y2="11"/></svg>',
   x: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
-  check: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+  check: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  menu: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg>',
+  arrowLeft: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>'
 };
 
 const MIN_FONT_SIZE = 10;
@@ -115,11 +117,14 @@ function showOverlay(text, isError, topic) {
   `;
 
   const titleRow = document.createElement("div");
-  titleRow.style.cssText = "display: flex; align-items: center; justify-content: space-between; cursor: grab;";
+  titleRow.style.cssText = "display: flex; align-items: center; gap: 8px; cursor: grab;";
+
+  const menuBtn = makeIconButton(ICONS.menu, "Notes", fg);
+  titleRow.appendChild(menuBtn);
 
   const label = document.createElement("span");
   label.textContent = "Mimi";
-  label.style.cssText = "font-weight: 600;";
+  label.style.cssText = "font-weight: 600; flex: 1;";
   titleRow.appendChild(label);
 
   const closeBtn = makeIconButton(ICONS.x, "Close", fg);
@@ -217,6 +222,67 @@ function showOverlay(text, isError, topic) {
   p.style.cssText = `margin: 0; white-space: pre-wrap; font-size: ${fontSize}px;`;
   p.textContent = text;
   body.appendChild(p);
+
+  const notesView = document.createElement("div");
+  notesView.hidden = true;
+  body.appendChild(notesView);
+
+  async function renderNotes() {
+    const { notes = [] } = await browser.storage.local.get("notes");
+    notesView.innerHTML = "";
+
+    if (notes.length === 0) {
+      const empty = document.createElement("p");
+      empty.style.cssText = "margin: 0; color: #a8a8a8;";
+      empty.textContent = "No notes saved yet.";
+      notesView.appendChild(empty);
+      return;
+    }
+
+    notes
+      .slice()
+      .sort((a, b) => b.created - a.created)
+      .forEach((note) => {
+        const row = document.createElement("div");
+        row.style.cssText = "margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #3a3a3a;";
+
+        const topicBtn = document.createElement("button");
+        topicBtn.type = "button";
+        topicBtn.textContent = note.topic;
+        topicBtn.title = "Show or hide this note's explanation";
+        topicBtn.style.cssText = `
+          width: auto; height: auto; display: block; text-align: left;
+          padding: 0; border: none; background: none; color: ${fg};
+          font-weight: 600; cursor: pointer;
+        `;
+
+        const explanationDiv = document.createElement("div");
+        explanationDiv.hidden = true;
+        explanationDiv.style.cssText = "margin-top: 8px; white-space: pre-wrap; color: #a8a8a8;";
+        explanationDiv.textContent = note.explanation;
+
+        topicBtn.onclick = () => {
+          explanationDiv.hidden = !explanationDiv.hidden;
+        };
+
+        row.appendChild(topicBtn);
+        row.appendChild(explanationDiv);
+        notesView.appendChild(row);
+      });
+  }
+
+  menuBtn.onclick = () => {
+    const openingNotes = notesView.hidden;
+    notesView.hidden = !openingNotes;
+    p.hidden = openingNotes;
+    toolbar.hidden = openingNotes;
+    label.textContent = openingNotes ? "Notes" : "Mimi";
+    menuBtn.innerHTML = openingNotes ? ICONS.arrowLeft : ICONS.menu;
+    const menuLabel = openingNotes ? "Back to explanation" : "Notes";
+    menuBtn.title = menuLabel;
+    menuBtn.setAttribute("aria-label", menuLabel);
+    if (openingNotes) renderNotes();
+  };
 
   box.appendChild(body);
   document.body.appendChild(box);
