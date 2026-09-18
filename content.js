@@ -1,4 +1,5 @@
 let lastContext = null;
+let savedPosition = null;
 
 document.addEventListener("contextmenu", (event) => {
   const selection = window.getSelection();
@@ -99,10 +100,12 @@ function showOverlay(text, isError, selectionText) {
   const fg = isError ? "#f0a8a8" : "#f0f0f0";
   let fontSize = 14;
 
+  const position = savedPosition || { left: window.innerWidth - 360 - 20, top: 20 };
+
   const box = document.createElement("div");
   box.id = "mimi-overlay";
   box.style.cssText = `
-    position: fixed; top: 20px; right: 20px; width: 360px;
+    position: fixed; left: ${position.left}px; top: ${position.top}px; width: 360px;
     max-height: min(70vh, 480px);
     display: flex; flex-direction: column;
     background: ${bg}; color: ${fg};
@@ -123,7 +126,7 @@ function showOverlay(text, isError, selectionText) {
   `;
 
   const titleRow = document.createElement("div");
-  titleRow.style.cssText = "display: flex; align-items: center; justify-content: space-between;";
+  titleRow.style.cssText = "display: flex; align-items: center; justify-content: space-between; cursor: grab;";
 
   const label = document.createElement("span");
   label.textContent = "Mimi";
@@ -133,6 +136,36 @@ function showOverlay(text, isError, selectionText) {
   const closeBtn = makeIconButton(ICONS.x, "Close", fg);
   closeBtn.onclick = removeOverlay;
   titleRow.appendChild(closeBtn);
+
+  titleRow.addEventListener("mousedown", (e) => {
+    if (e.target.closest("button")) return;
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startLeft = box.offsetLeft;
+    const startTop = box.offsetTop;
+    titleRow.style.cursor = "grabbing";
+
+    function onMouseMove(moveEvent) {
+      const maxLeft = window.innerWidth - 40;
+      const maxTop = window.innerHeight - 40;
+      const minLeft = -(box.offsetWidth - 40);
+      const newLeft = Math.min(maxLeft, Math.max(minLeft, startLeft + moveEvent.clientX - startX));
+      const newTop = Math.min(maxTop, Math.max(0, startTop + moveEvent.clientY - startY));
+      box.style.left = newLeft + "px";
+      box.style.top = newTop + "px";
+    }
+
+    function onMouseUp() {
+      titleRow.style.cursor = "grab";
+      savedPosition = { left: box.offsetLeft, top: box.offsetTop };
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    }
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  });
 
   header.appendChild(titleRow);
 
