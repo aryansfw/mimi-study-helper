@@ -36,6 +36,11 @@ async function saveNote(topic, explanation) {
   await browser.storage.local.set({ notes });
 }
 
+async function deleteNote(created) {
+  const { notes = [] } = await browser.storage.local.get("notes");
+  await browser.storage.local.set({ notes: notes.filter((n) => n.created !== created) });
+}
+
 // Icon markup from Lucide (lucide.dev, ISC license), copied verbatim per icon, no library dependency.
 const ICONS = {
   bookmark: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z"/></svg>',
@@ -44,6 +49,7 @@ const ICONS = {
   zoomOut: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="8" x2="14" y1="11" y2="11"/></svg>',
   x: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
   check: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  trash: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
   panelLeft: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>',
   arrowLeft: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>'
 };
@@ -320,8 +326,13 @@ function showOverlay(text, isError, topic) {
         const row = document.createElement("div");
         row.style.cssText = "margin-bottom: 4px; padding-bottom: 8px; border-bottom: 1px solid #3a3a3a;";
 
+        const topRow = document.createElement("div");
+        topRow.style.cssText = "display: flex; align-items: center; gap: 4px;";
+
         const topicBtn = makeListButton(note.topic, fg, true);
         topicBtn.title = "Show or hide this note's explanation";
+        topicBtn.style.width = "auto";
+        topicBtn.style.flex = "1";
 
         const explanationDiv = document.createElement("div");
         explanationDiv.hidden = true;
@@ -332,7 +343,15 @@ function showOverlay(text, isError, topic) {
           explanationDiv.hidden = !explanationDiv.hidden;
         };
 
-        row.appendChild(topicBtn);
+        const deleteBtn = makeIconButton(ICONS.trash, "Delete note", fg);
+        deleteBtn.onclick = async () => {
+          await deleteNote(note.created);
+          renderNotes();
+        };
+
+        topRow.appendChild(topicBtn);
+        topRow.appendChild(deleteBtn);
+        row.appendChild(topRow);
         row.appendChild(explanationDiv);
         notesView.appendChild(row);
       });
