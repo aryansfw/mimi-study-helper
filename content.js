@@ -21,13 +21,25 @@ browser.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return;
   }
   if (msg.type === "explanation-result") {
-    showOverlay(msg.explanation, false);
+    showOverlay(msg.explanation, false, msg.selectionText);
   } else if (msg.type === "explanation-error") {
     showOverlay(msg.error, true);
   }
 });
 
-function showOverlay(text, isError) {
+function extractAnswer(text) {
+  const idx = text.indexOf("\n\n");
+  return idx === -1 ? text : text.slice(0, idx);
+}
+
+async function saveFlashcard(selectionText, explanation) {
+  const answer = extractAnswer(explanation);
+  const { flashcards = [] } = await browser.storage.local.get("flashcards");
+  flashcards.push({ front: selectionText, answer, explanation, created: Date.now() });
+  await browser.storage.local.set({ flashcards });
+}
+
+function showOverlay(text, isError, selectionText) {
   removeOverlay();
 
   const bg = isError ? "#4a1616" : "#1e1e1e";
@@ -59,6 +71,38 @@ function showOverlay(text, isError) {
   label.style.cssText = "font-weight: 600;";
   header.appendChild(label);
 
+  const toolbar = document.createElement("div");
+  toolbar.style.cssText = "display: flex; gap: 8px;";
+
+  if (!isError) {
+    const saveBtn = document.createElement("button");
+    saveBtn.textContent = "Save";
+    saveBtn.type = "button";
+    saveBtn.style.cssText = `
+      cursor: pointer; padding: 4px 10px; font: inherit;
+      background: #9d7cf2; color: #ffffff;
+      border: none; border-radius: 6px;
+      transition: background-color 120ms ease-out, transform 120ms ease-out;
+    `;
+    saveBtn.onmouseenter = () => {
+      if (saveBtn.disabled) return;
+      saveBtn.style.background = "#ab8ff5";
+      saveBtn.style.transform = "scale(1.02)";
+    };
+    saveBtn.onmouseleave = () => {
+      saveBtn.style.background = "#9d7cf2";
+      saveBtn.style.transform = "scale(1)";
+    };
+    saveBtn.onclick = async () => {
+      await saveFlashcard(selectionText, text);
+      saveBtn.textContent = "Saved";
+      saveBtn.disabled = true;
+      saveBtn.style.opacity = "0.6";
+      saveBtn.style.cursor = "default";
+    };
+    toolbar.appendChild(saveBtn);
+  }
+
   const closeBtn = document.createElement("button");
   closeBtn.textContent = "Close";
   closeBtn.type = "button";
@@ -77,8 +121,9 @@ function showOverlay(text, isError) {
     closeBtn.style.transform = "scale(1)";
   };
   closeBtn.onclick = removeOverlay;
-  header.appendChild(closeBtn);
+  toolbar.appendChild(closeBtn);
 
+  header.appendChild(toolbar);
   box.appendChild(header);
 
   const body = document.createElement("div");

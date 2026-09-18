@@ -31,7 +31,11 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
 
   try {
     const explanation = await explainText(info.selectionText, nearbyText, groqApiKey);
-    browser.tabs.sendMessage(tab.id, { type: "explanation-result", explanation });
+    browser.tabs.sendMessage(tab.id, {
+      type: "explanation-result",
+      explanation,
+      selectionText: info.selectionText
+    });
   } catch (err) {
     browser.tabs.sendMessage(tab.id, { type: "explanation-error", error: err.message });
   }
