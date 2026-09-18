@@ -17,6 +17,14 @@
     font: 14px/1.5 system-ui, sans-serif;
     background: var(--bg);
     color: var(--text);
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card {
     padding: 24px;
     width: 320px;
   }
@@ -86,14 +94,16 @@
 </style>
 </head>
 <body>
-  <h1>Mimi</h1>
-  <p class="subtitle">
-    Get a free key at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a>.
-  </p>
-  <label for="groq-key">Groq API key</label>
-  <input id="groq-key" type="password" placeholder="gsk_...">
-  <button id="save">Save</button>
-  <div id="status"></div>
+  <div class="card">
+    <h1>Mimi</h1>
+    <p class="subtitle">
+      Get a free key at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a>.
+    </p>
+    <label for="groq-key">Groq API key</label>
+    <input id="groq-key" type="password" placeholder="gsk_...">
+    <button id="save">Save</button>
+    <div id="status"></div>
+  </div>
   <script src="options.js"></script>
 </body>
 </html>
