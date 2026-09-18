@@ -65,19 +65,38 @@
     outline-offset: 1px;
   }
 
+  .row {
+    display: flex;
+    gap: 8px;
+  }
+
   button {
     padding: 8px 16px;
     cursor: pointer;
+    border-radius: 6px;
+    font: inherit;
+    transition: background-color 120ms ease-out, border-color 120ms ease-out, transform 120ms ease-out;
+  }
+
+  button.primary {
     background: var(--accent);
     color: #ffffff;
     border: none;
-    border-radius: 6px;
-    font: inherit;
-    transition: background-color 120ms ease-out, transform 120ms ease-out;
   }
 
-  button:hover {
+  button.primary:hover {
     background: var(--accent-hover);
+    transform: scale(1.02);
+  }
+
+  button.ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  button.ghost:hover {
+    border-color: var(--accent);
     transform: scale(1.02);
   }
 
@@ -101,7 +120,11 @@
     </p>
     <label for="groq-key">Groq API key</label>
     <input id="groq-key" type="password" placeholder="gsk_...">
-    <button id="save">Save</button>
+    <div class="row">
+      <button id="edit" class="ghost" type="button" hidden>Edit</button>
+      <button id="save" class="primary" type="button" hidden>Save</button>
+      <button id="toggle" class="ghost" type="button">Show</button>
+    </div>
     <div id="status"></div>
   </div>
   <script src="options.js"></script>
