@@ -5,6 +5,9 @@
   "description": "Select text on any page, explain it with AI, save it, quiz yourself later.",
   "permissions": ["contextMenus", "storage"],
   "host_permissions": ["https://api.groq.com/*"],
+  "action": {
+    "default_title": "Mimi flashcards"
+  },
   "background": {
     "scripts": ["background.js"]
   },

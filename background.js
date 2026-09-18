@@ -14,6 +14,10 @@ browser.runtime.onInstalled.addListener(() => {
   });
 });
 
+browser.action.onClicked.addListener(() => {
+  browser.tabs.create({ url: browser.runtime.getURL("quiz.html") });
+});
+
 browser.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId !== "mimi-explain" || !info.selectionText) return;
 
