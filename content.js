@@ -344,7 +344,7 @@ function showOverlay(text, isError, topic) {
     p.hidden = view !== "explanation";
     menuView.hidden = view !== "menu";
     notesView.hidden = view !== "notes";
-    toolbar.hidden = view !== "explanation";
+    toolbar.style.display = view === "explanation" ? "flex" : "none";
 
     if (view === "explanation") {
       label.textContent = "Mimi";
