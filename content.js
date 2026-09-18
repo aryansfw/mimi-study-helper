@@ -168,7 +168,7 @@ function showOverlay(text, isError, topic) {
 
   const header = document.createElement("div");
   header.style.cssText = `
-    padding: 10px 14px; border-bottom: 1px solid #3a3a3a; flex-shrink: 0;
+    padding: 10px 14px; flex-shrink: 0;
   `;
 
   const titleRow = document.createElement("div");
@@ -219,7 +219,10 @@ function showOverlay(text, isError, topic) {
   header.appendChild(titleRow);
 
   const toolbar = document.createElement("div");
-  toolbar.style.cssText = "display: flex; align-items: center; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #3a3a3a;";
+  toolbar.style.cssText = "display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid #3a3a3a;";
+
+  const actionsGroup = document.createElement("div");
+  actionsGroup.style.cssText = "display: flex; gap: 4px;";
 
   if (!isError) {
     const saveBtn = makeIconButton(ICONS.bookmark, "Save as note", fg);
@@ -230,7 +233,7 @@ function showOverlay(text, isError, topic) {
       saveBtn.setAttribute("aria-label", "Saved");
       saveBtn.disabled = true;
     };
-    toolbar.appendChild(saveBtn);
+    actionsGroup.appendChild(saveBtn);
 
     const copyBtn = makeIconButton(ICONS.copy, "Copy explanation", fg);
     copyBtn.onclick = async () => {
@@ -246,26 +249,33 @@ function showOverlay(text, isError, topic) {
         copyBtn.title = "Copy explanation";
       }, 1500);
     };
-    toolbar.appendChild(copyBtn);
+    actionsGroup.appendChild(copyBtn);
   }
+
+  toolbar.appendChild(actionsGroup);
 
   function applyZoom() {
     p.style.fontSize = fontSize + "px";
   }
+
+  const zoomGroup = document.createElement("div");
+  zoomGroup.style.cssText = "display: flex; gap: 4px;";
 
   const zoomOutBtn = makeIconButton(ICONS.zoomOut, "Zoom out", fg);
   zoomOutBtn.onclick = () => {
     fontSize = Math.max(MIN_FONT_SIZE, fontSize - 2);
     applyZoom();
   };
-  toolbar.appendChild(zoomOutBtn);
+  zoomGroup.appendChild(zoomOutBtn);
 
   const zoomInBtn = makeIconButton(ICONS.zoomIn, "Zoom in", fg);
   zoomInBtn.onclick = () => {
     fontSize = Math.min(MAX_FONT_SIZE, fontSize + 2);
     applyZoom();
   };
-  toolbar.appendChild(zoomInBtn);
+  zoomGroup.appendChild(zoomInBtn);
+
+  toolbar.appendChild(zoomGroup);
 
   header.appendChild(toolbar);
   box.appendChild(header);
