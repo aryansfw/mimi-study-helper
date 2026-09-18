@@ -48,11 +48,17 @@
     margin-bottom: 6px;
   }
 
+  .field-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
   input {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     padding: 8px;
     box-sizing: border-box;
-    margin-bottom: 12px;
     background: var(--bg);
     color: var(--text);
     border: 1px solid var(--border);
@@ -63,11 +69,6 @@
   input:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 1px;
-  }
-
-  .row {
-    display: flex;
-    gap: 8px;
   }
 
   button {
@@ -119,11 +120,11 @@
       Get a free key at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a>.
     </p>
     <label for="groq-key">Groq API key</label>
-    <input id="groq-key" type="password" placeholder="gsk_...">
-    <div class="row">
+    <div class="field-row">
+      <input id="groq-key" type="password" placeholder="gsk_...">
+      <button id="toggle" class="ghost" type="button">Show</button>
       <button id="edit" class="ghost" type="button" hidden>Edit</button>
       <button id="save" class="primary" type="button" hidden>Save</button>
-      <button id="toggle" class="ghost" type="button">Show</button>
     </div>
     <div id="status"></div>
   </div>
