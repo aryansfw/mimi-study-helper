@@ -59,26 +59,21 @@ const MAX_FONT_SIZE = 32;
 // contrast, failing WCAG AA's 4.5:1 for text. Scoped to #mimi-overlay so it
 // doesn't leak into the host page.
 const OVERLAY_STYLE = `
-  #mimi-overlay button, #mimi-overlay input[type="number"] {
+  #mimi-overlay button {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; padding: 0;
     font: inherit;
     border: 1px solid #3a3a3a;
     border-radius: 6px;
     background: transparent;
     cursor: pointer;
-    transition: border-color 120ms ease-out, transform 120ms ease-out, background-color 120ms ease-out;
-  }
-  #mimi-overlay button {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; padding: 0;
-  }
-  #mimi-overlay input[type="number"] {
-    width: 40px; text-align: center; padding: 4px 2px; cursor: text;
+    transition: border-color 120ms ease-out, background-color 120ms ease-out;
   }
   #mimi-overlay button:hover:not(:disabled) {
-    border-color: #9d7cf2; background: rgba(157, 124, 242, 0.15); transform: scale(1.08);
+    border-color: #9d7cf2; background: rgba(157, 124, 242, 0.15);
   }
   #mimi-overlay button:disabled { opacity: 0.6; cursor: default; }
-  #mimi-overlay button:focus-visible, #mimi-overlay input:focus-visible {
+  #mimi-overlay button:focus-visible {
     outline: 2px solid #9d7cf2; outline-offset: 2px;
   }
 `;

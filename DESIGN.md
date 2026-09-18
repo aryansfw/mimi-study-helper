@@ -37,7 +37,7 @@ Radius: 8px on panels (overlay, options page container), 6px on buttons and inpu
 ## Motion (dial 2)
 
 - Overlay entrance: one transition, fade + slight slide (~180ms ease-out). Single technique, not stacked.
-- Buttons: subtle hover state, border-color shifts to accent + scale (~120ms). One purpose (affordance feedback), one technique. `scale(1.02)` for regular text buttons; icon buttons (28px) use `scale(1.08)` instead, since 1.02 moves under a pixel at that size and wouldn't register as feedback.
+- Buttons: subtle hover state, border-color shifts to accent + background tint (~120ms). One purpose (affordance feedback), one technique. Text buttons additionally get `scale(1.02)`. Icon buttons (28px) skip the scale, scaling a small icon glyph looked visually off (border/glyph growing out of proportion at that size), border-color + background tint alone reads as clear feedback without it.
 - No motion beyond these two cases unless a new one earns its own written reason here.
 
 ## Component patterns
