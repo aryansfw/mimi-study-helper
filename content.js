@@ -169,7 +169,6 @@ function showOverlay(text, isError, selectionText) {
 
   function applyZoom() {
     p.style.fontSize = fontSize + "px";
-    fontSizeInput.value = fontSize;
   }
 
   const zoomOutBtn = makeIconButton(ICONS.zoomOut, "Zoom out", fg);
@@ -178,22 +177,6 @@ function showOverlay(text, isError, selectionText) {
     applyZoom();
   };
   toolbar.appendChild(zoomOutBtn);
-
-  const fontSizeInput = document.createElement("input");
-  fontSizeInput.type = "number";
-  fontSizeInput.min = String(MIN_FONT_SIZE);
-  fontSizeInput.max = String(MAX_FONT_SIZE);
-  fontSizeInput.value = fontSize;
-  fontSizeInput.title = "Explanation text size (px)";
-  fontSizeInput.style.color = fg;
-  fontSizeInput.addEventListener("change", () => {
-    const val = parseInt(fontSizeInput.value, 10);
-    fontSize = Number.isFinite(val)
-      ? Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, val))
-      : fontSize;
-    applyZoom();
-  });
-  toolbar.appendChild(fontSizeInput);
 
   const zoomInBtn = makeIconButton(ICONS.zoomIn, "Zoom in", fg);
   zoomInBtn.onclick = () => {
