@@ -179,7 +179,7 @@ function showOverlay(text, isError, topic) {
   header.appendChild(titleRow);
 
   const toolbar = document.createElement("div");
-  toolbar.style.cssText = "display: flex; align-items: center; gap: 4px; margin-top: 8px;";
+  toolbar.style.cssText = "display: flex; align-items: center; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #3a3a3a;";
 
   if (!isError) {
     const saveBtn = makeIconButton(ICONS.bookmark, "Save as note", fg);
