@@ -42,31 +42,35 @@ const ICONS = {
   zoomOut: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="8" x2="14" y1="11" y2="11"/></svg>',
   x: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
   check: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
-  menu: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg>',
+  panelLeft: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>',
   arrowLeft: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>'
 };
 
 const MIN_FONT_SIZE = 10;
 const MAX_FONT_SIZE = 32;
 
-// Every button shares one style (no primary/secondary split): transparent
-// background, border token, fg-colored icon. Solid-accent primary buttons
-// previously put white text/icons on #9d7cf2, which only measures 3.18:1
-// contrast, failing WCAG AA's 4.5:1 for text. Scoped to #mimi-overlay so it
-// doesn't leak into the host page.
+// Every button shares one style (no primary/secondary split, no border):
+// transparent background, fg-colored icon/text, a subtle accent-tinted
+// background on hover. Solid-accent primary buttons previously put white
+// text/icons on #9d7cf2, which only measures 3.18:1 contrast, failing WCAG
+// AA's 4.5:1 for text. A bordered-box look was tried after that and dropped
+// too, borders around every small icon looked cluttered; the background
+// tint alone reads as feedback. Scoped to #mimi-overlay so it doesn't leak
+// into the host page. Keyboard focus-visible outline stays regardless,
+// that's an accessibility requirement, not decoration.
 const OVERLAY_STYLE = `
   #mimi-overlay button {
     display: inline-flex; align-items: center; justify-content: center;
     width: 28px; height: 28px; padding: 0;
     font: inherit;
-    border: 1px solid #3a3a3a;
+    border: none;
     border-radius: 6px;
     background: transparent;
     cursor: pointer;
-    transition: border-color 120ms ease-out, background-color 120ms ease-out;
+    transition: background-color 120ms ease-out;
   }
   #mimi-overlay button:hover:not(:disabled) {
-    border-color: #9d7cf2; background: rgba(157, 124, 242, 0.15);
+    background: rgba(157, 124, 242, 0.15);
   }
   #mimi-overlay button:disabled { opacity: 0.6; cursor: default; }
   #mimi-overlay button:focus-visible {
@@ -81,6 +85,17 @@ function makeIconButton(icon, label, fg) {
   btn.title = label;
   btn.setAttribute("aria-label", label);
   btn.style.color = fg;
+  return btn;
+}
+
+function makeListButton(text, fg, bold) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.textContent = text;
+  btn.style.cssText = `
+    width: 100%; height: auto; display: block; text-align: left;
+    padding: 8px; color: ${fg}; font-weight: ${bold ? 600 : 400};
+  `;
   return btn;
 }
 
@@ -119,7 +134,7 @@ function showOverlay(text, isError, topic) {
   const titleRow = document.createElement("div");
   titleRow.style.cssText = "display: flex; align-items: center; gap: 8px; cursor: grab;";
 
-  const menuBtn = makeIconButton(ICONS.menu, "Notes", fg);
+  const menuBtn = makeIconButton(ICONS.panelLeft, "Menu", fg);
   titleRow.appendChild(menuBtn);
 
   const label = document.createElement("span");
@@ -223,6 +238,14 @@ function showOverlay(text, isError, topic) {
   p.textContent = text;
   body.appendChild(p);
 
+  const menuView = document.createElement("div");
+  menuView.hidden = true;
+  const notesItem = makeListButton("Notes", fg, false);
+  notesItem.title = "View saved notes";
+  notesItem.onclick = () => setView("notes");
+  menuView.appendChild(notesItem);
+  body.appendChild(menuView);
+
   const notesView = document.createElement("div");
   notesView.hidden = true;
   body.appendChild(notesView);
@@ -244,21 +267,14 @@ function showOverlay(text, isError, topic) {
       .sort((a, b) => b.created - a.created)
       .forEach((note) => {
         const row = document.createElement("div");
-        row.style.cssText = "margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #3a3a3a;";
+        row.style.cssText = "margin-bottom: 4px; padding-bottom: 8px; border-bottom: 1px solid #3a3a3a;";
 
-        const topicBtn = document.createElement("button");
-        topicBtn.type = "button";
-        topicBtn.textContent = note.topic;
+        const topicBtn = makeListButton(note.topic, fg, true);
         topicBtn.title = "Show or hide this note's explanation";
-        topicBtn.style.cssText = `
-          width: auto; height: auto; display: block; text-align: left;
-          padding: 0; border: none; background: none; color: ${fg};
-          font-weight: 600; cursor: pointer;
-        `;
 
         const explanationDiv = document.createElement("div");
         explanationDiv.hidden = true;
-        explanationDiv.style.cssText = "margin-top: 8px; white-space: pre-wrap; color: #a8a8a8;";
+        explanationDiv.style.cssText = "padding: 0 8px 8px; white-space: pre-wrap; color: #a8a8a8;";
         explanationDiv.textContent = note.explanation;
 
         topicBtn.onclick = () => {
@@ -271,17 +287,38 @@ function showOverlay(text, isError, topic) {
       });
   }
 
+  let currentView = "explanation";
+
+  function setView(view) {
+    currentView = view;
+    p.hidden = view !== "explanation";
+    menuView.hidden = view !== "menu";
+    notesView.hidden = view !== "notes";
+    toolbar.hidden = view !== "explanation";
+
+    if (view === "explanation") {
+      label.textContent = "Mimi";
+      menuBtn.innerHTML = ICONS.panelLeft;
+      menuBtn.title = "Menu";
+      menuBtn.setAttribute("aria-label", "Menu");
+    } else if (view === "menu") {
+      label.textContent = "Menu";
+      menuBtn.innerHTML = ICONS.arrowLeft;
+      menuBtn.title = "Back";
+      menuBtn.setAttribute("aria-label", "Back");
+    } else if (view === "notes") {
+      label.textContent = "Notes";
+      menuBtn.innerHTML = ICONS.arrowLeft;
+      menuBtn.title = "Back to menu";
+      menuBtn.setAttribute("aria-label", "Back to menu");
+      renderNotes();
+    }
+  }
+
   menuBtn.onclick = () => {
-    const openingNotes = notesView.hidden;
-    notesView.hidden = !openingNotes;
-    p.hidden = openingNotes;
-    toolbar.hidden = openingNotes;
-    label.textContent = openingNotes ? "Notes" : "Mimi";
-    menuBtn.innerHTML = openingNotes ? ICONS.arrowLeft : ICONS.menu;
-    const menuLabel = openingNotes ? "Back to explanation" : "Notes";
-    menuBtn.title = menuLabel;
-    menuBtn.setAttribute("aria-label", menuLabel);
-    if (openingNotes) renderNotes();
+    if (currentView === "explanation") setView("menu");
+    else if (currentView === "menu") setView("explanation");
+    else if (currentView === "notes") setView("menu");
   };
 
   box.appendChild(body);
